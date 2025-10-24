@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Activity Widget</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .widget-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .widget-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .widget-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .emotions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .emotion-button {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .emotion-button:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .emotion-button.selected {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .emotion-emoji {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .activity-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            margin-top: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .activity-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .activity-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .activity-description {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .activity-time {
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .try-again-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .try-again-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .custom-emotion {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .custom-emotion:hover {
+            border-color: #667eea;
+        }
+
+        .custom-input {
+            border: none;
+            background: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            width: 100%;
+            max-width: 120px;
+            text-align: center;
+            outline: none;
+        }
+
+        .custom-input:focus {
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+        }
+
+        .custom-submit {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .custom-submit:hover {
+            background: #5a67d8;
+        }
+
+        @media (max-width: 480px) {
+            .widget-container {
+                padding: 25px;
+                margin: 10px;
+            }
+            
+            .emotions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .widget-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="widget-container">
+        <h1 class="widget-title">Emotion Reset</h1>
+        <p class="widget-subtitle">Choose how you're feeling and get a 15-minute activity to help refocus</p>
+        
+        <div class="emotions-grid">
+            <button class="emotion-button" data-emotion="stressed">
+                <span class="emotion-emoji">😰</span>
+                Stressed
+            </button>
+            <button class="emotion-button" data-emotion="anxious">
+                <span class="emotion-emoji">😟</span>
+                Anxious
+            </button>
+            <button class="emotion-button" data-emotion="sad">
+                <span class="emotion-emoji">😢</span>
+                Sad
+            </button>
+            <button class="emotion-button" data-emotion="angry">
+                <span class="emotion-emoji">😠</span>
+                Angry
+            </button>
+            <button class="emotion-button" data-emotion="overwhelmed">
+                <span class="emotion-emoji">🤯</span>
+                Overwhelmed
+            </button>
+            <button class="emotion-button" data-emotion="restless">
+                <span class="emotion-emoji">😤</span>
+                Restless
+            </button>
+            <button class="emotion-button" data-emotion="lonely">
+                <span class="emotion-emoji">😔</span>
+                Lonely
+            </button>
+            <button class="emotion-button" data-emotion="frustrated">
+                <span class="emotion-emoji">😤</span>
+                Frustrated
+            </button>
+            <div class="custom-emotion">
+                <span class="emotion-emoji">✏️</span>
+                <input type="text" id="customEmotion" placeholder="Other emotion..." class="custom-input">
+                <button class="custom-submit" onclick="handleCustomEmotion()">Go</button>
+            </div>
+        </div>
+
+        <div id="activityCard" class="activity-card">
+            <div class="activity-title" id="activityTitle"></div>
+            <div class="activity-description" id="activityDescription"></div>
+            <div class="activity-time">⏱️ 15 minutes</div>
+            <button class="try-again-btn" onclick="getNewActivity()">Try Another Activity</button>
+        </div>
+    </main>
+
+    <script>
+        const activities = [
+            {
+                title: "Progressive Muscle Relaxation",
+                description: "Tense and release each muscle group starting from your toes up to your head. Hold tension for 5 seconds, then release and notice the relaxation."
+            },
+            {
+                title: "Breathing Box Technique",
+                description: "Breathe in for 4 counts, hold for 4, exhale for 4, hold for 4. Repeat this pattern while visualizing drawing a box with your breath."
+            },
+            {
+                title: "Gentle Stretching Flow",
+                description: "Do simple stretches focusing on your neck, shoulders, and back. Move slowly and breathe deeply with each stretch."
+            },
+            {
+                title: "5-4-3-2-1 Grounding",
+                description: "Name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, and 1 you can taste. This brings you back to the present moment."
+            },
+            {
+                title: "Calming Music & Deep Breathing",
+                description: "Put on soft instrumental music and focus on taking slow, deep breaths. Let the music guide your breathing rhythm."
+            },
+            {
+                title: "Worry Journal",
+                description: "Write down your worries for 10 minutes, then spend 5 minutes writing three things you're grateful for today."
+            },
+            {
+                title: "Uplifting Playlist Dance",
+                description: "Create a playlist of your favorite upbeat songs and dance freely in your space. Let your body move however feels good."
+            },
+            {
+                title: "Self-Compassion Letter",
+                description: "Write yourself a kind letter as if you were comforting a good friend. Acknowledge your feelings and offer yourself encouragement."
+            },
+
+            {
+                title: "Physical Release Exercise",
+                description: "Do jumping jacks, push-ups, or punch a pillow. Channel that energy into movement to help release the tension physically."
+            },
+            {
+                title: "Ice Cube Technique",
+                description: "Hold an ice cube in your hand or place it on your wrist. Focus on the cold sensation to help cool down your emotions."
+            },
+            {
+                title: "Brain Dump & Prioritize",
+                description: "Write down everything on your mind for 10 minutes. Then circle the top 3 most important items and put the rest aside for later."
+            },
+            {
+                title: "Guided Meditation",
+                description: "Find a 15-minute guided meditation online focusing on letting go or releasing overwhelm. Close your eyes and follow along."
+            },
+            {
+                title: "One Small Task",
+                description: "Pick the smallest, easiest task you can complete right now. Finishing something simple can help you feel more in control."
+            },
+            {
+                title: "Play a Quick Game",
+                description: "Play a mobile game, card game, or puzzle game that requires focus and quick thinking to channel that restless energy."
+            },
+            {
+                title: "Fidget & Focus Activity",
+                description: "Try a hands-on activity like drawing, coloring, playing with putty, or organizing a small area while listening to calming sounds."
+            },
+
+            {
+                title: "Create a Comfort Space",
+                description: "Arrange a cozy corner with soft blankets, pillows, and warm lighting. Make yourself a hot drink and enjoy the peaceful atmosphere you've created."
+            },
+            {
+                title: "Self-Care Ritual",
+                description: "Take a warm shower, make your favorite tea, or do something nurturing just for you. Treat yourself with the same care you'd show a friend."
+            },
+
+            {
+                title: "Work on an Art Project",
+                description: "Start or continue a creative project like sketching, painting, crafting, or digital art. Let your hands create while your mind processes."
+            },
+            {
+                title: "Creative Writing Sprint",
+                description: "Write a short story, poem, or journal entry for 15 minutes. Let your imagination flow freely without worrying about perfection."
+            },
+            {
+                title: "Music Creation",
+                description: "Hum a melody, play an instrument, or use a music app to create beats. Express your feelings through sound and rhythm."
+            },
+            {
+                title: "Play a Brain Game",
+                description: "Try sudoku, crossword puzzles, word games, or logic puzzles to engage your mind and shift focus to something challenging but fun."
+            },
+            {
+                title: "Start a Mini Art Project",
+                description: "Doodle, sketch something you see, try origami, or work with clay. Create something small and satisfying with your hands."
+            },
+            {
+                title: "Learn Something New",
+                description: "Watch a short tutorial, read about a topic that interests you, or practice a skill you've been wanting to develop."
+            },
+            {
+                title: "Creative Photography",
+                description: "Take artistic photos of everyday objects, experiment with lighting and angles, or create a mini photo story around your space."
+            }
+        ];
+
+        let currentEmotion = '';
+        let currentActivityIndex = 0;
+
+        document.querySelectorAll('.emotion-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove selected class from all buttons
+                document.querySelectorAll('.emotion-button').forEach(btn => btn.classList.remove('selected'));
+                
+                // Add selected class to clicked button
+                this.classList.add('selected');
+                
+                // Get a random activity
+                currentActivityIndex = Math.floor(Math.random() * activities.length);
+                showActivity();
+            });
+        });
+
+        function showActivity() {
+            const activityCard = document.getElementById('activityCard');
+            const activity = activities[currentActivityIndex];
+            
+            // Hide card first
+            activityCard.classList.remove('show');
+            
+            setTimeout(() => {
+                document.getElementById('activityTitle').textContent = activity.title;
+                document.getElementById('activityDescription').textContent = activity.description;
+                activityCard.classList.add('show');
+            }, 200);
+        }
+
+        function getNewActivity() {
+            currentActivityIndex = (currentActivityIndex + 1) % activities.length;
+            showActivity();
+        }
+
+        function handleCustomEmotion() {
+            const customInput = document.getElementById('customEmotion');
+            const customEmotion = customInput.value.trim().toLowerCase();
+            
+            if (customEmotion) {
+                // Remove selected class from all emotion buttons
+                document.querySelectorAll('.emotion-button').forEach(btn => btn.classList.remove('selected'));
+                
+                // Get a random activity
+                currentActivityIndex = Math.floor(Math.random() * activities.length);
+                showActivity();
+                
+                // Clear the input
+                customInput.value = '';
+            }
+        }
+
+        // Allow Enter key to submit custom emotion
+        document.getElementById('customEmotion').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleCustomEmotion();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'993ba04c205c6183',t:'MTc2MTMzMTQ3My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
